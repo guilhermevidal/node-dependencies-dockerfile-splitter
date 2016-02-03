@@ -1,0 +1,37 @@
+{
+  "name": "node-dependencies-dockerfile-splitter",
+  "version": "1.0.0-alhpa",
+  "description": "Splits a Dockerfile of a node app into two Dockerfiles (App dependencies and App code).",
+  "main": "./dist/index.js",
+  "typings": "./dist/index.d.ts",
+  "directories": {
+    "dist": "dist",
+    "test": "test"
+  },
+  "scripts": {
+    "install-globals": "npm install typescript -g && npm install typings -g && npm install mocha -g",
+    "typings": "typings install",
+    "build-src": "npm run typings && tsc -P src",
+    "build-test": "npm run typings && tsc -P test",
+    "build": "npm run build-src && npm run build-test",
+    "test": "npm run build && mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/guilhermevidal/node-dependencies-dockerfile-splitter.git"
+  },
+  "author": "Guilherme Pereira Vidal",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/guilhermevidal/node-dependencies-dockerfile-splitter/issues"
+  },
+  "homepage": "https://github.com/guilhermevidal/node-dependencies-dockerfile-splitter",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-as-promised": "^5.2.0"
+  },
+  "dependencies": {
+    "docker-file-parser": "^0.1.0",
+    "node-dockerfile": "^0.3.4"
+  }
+}
