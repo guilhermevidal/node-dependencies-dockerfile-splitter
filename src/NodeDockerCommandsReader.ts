@@ -1,9 +1,8 @@
 /// <reference path="../typings/main" />
-import * as parser from 'docker-file-parser';
 import * as os from 'os';
 
+import {Command, CopyCommand, DockerfileParser} from 'ya-dockerfile-parser';
 import {CommandsReader} from './CommandsReader';
-import {Command, CopyCommand} from './Command';
 
 export class NodeDockerCommandsReader implements CommandsReader {
     constructor(private fileContents: string) {
@@ -64,7 +63,7 @@ export class NodeDockerCommandsReader implements CommandsReader {
     private _commands: Command[];
 
     protected parseDockerfile(): Command[] {
-        return <Command[]>parser.parse(this.getFileContentsAsArray(), { includeComments: true });
+        return <Command[]>new DockerfileParser().parse(this.getFileContentsAsArray());
     }
 
     private getFileContentsAsArray() {

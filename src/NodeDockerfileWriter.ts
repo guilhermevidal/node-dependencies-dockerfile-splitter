@@ -1,11 +1,11 @@
 /// <reference path="../typings/main" />
 import * as stream from 'stream';
 
-import {Command} from './Command';
-import {CommandsWritter} from './CommandsWritter';
+import {Command, DockerfileCommand} from 'ya-dockerfile-parser';
+import {CommandsWriter} from './CommandsWriter';
 import * as Builder from 'node-dockerfile';
 
-export class NodeDockerfileWritter implements CommandsWritter {
+export class NodeDockerfileWriter implements CommandsWriter {
     private _initialized = false;
     private _lineno: number;
     private _dockerfile: any;
@@ -83,7 +83,8 @@ export class NodeDockerfileWritter implements CommandsWritter {
         this._forEachKeyValuePair(cmd.args, (key, value) => this._dockerfile.env(key, value));
     }
     private _writeAddCommand(cmd: Command) {
-        this._dockerfile.add(cmd.args[0], cmd.args[1]);
+        var s = /(^("|'))|(("|')$)/g;
+        this._dockerfile.add(cmd.args[0].replace(s, ''), cmd.args[1].replace(s, ''));
     }
     private _writeCopyCommand(cmd: Command) {
         var s = /(^("|'))|(("|')$)/g;
@@ -102,7 +103,10 @@ export class NodeDockerfileWritter implements CommandsWritter {
         this._dockerfile.workDir(cmd.args);
     }
     private _writeArgCommand(cmd: Command) {
-        this._dockerfile.instructions.push({ command: cmd.name, instruction: cmd.args });
+        this._forEachKeyValuePair(cmd.args, (key, value) => {
+            var args = (value === undefined) ? key : ''.concat(key, '=', value);
+            this._dockerfile.instructions.push({ command: cmd.name, instruction: args });
+        });
     }
     private _writeOnbuildCommand(cmd: Command) {
         this._dockerfile.onBuild(cmd.args);
@@ -137,22 +141,3 @@ export class NodeDockerfileWritter implements CommandsWritter {
     }
 }
 
-export class DockerfileCommand {
-    static FROM = "FROM";
-    static MAINTAINER = "MAINTAINER";
-    static RUN = "RUN";
-    static CMD = "CMD";
-    static LABEL = "LABEL";
-    static EXPOSE = "EXPOSE";
-    static ENV = "ENV";
-    static ADD = "ADD";
-    static COPY = "COPY";
-    static ENTRYPOINT = "ENTRYPOINT";
-    static VOLUME = "VOLUME";
-    static USER = "USER";
-    static WORKDIR = "WORKDIR";
-    static ARG = "ARG";
-    static ONBUILD = "ONBUILD";
-    static STOPSIGNAL = "STOPSIGNAL";
-    static COMMENT = "COMMENT";
-}

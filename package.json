@@ -31,7 +31,7 @@
     "chai-as-promised": "^5.2.0"
   },
   "dependencies": {
-    "docker-file-parser": "^0.1.0",
-    "node-dockerfile": "^0.3.4"
+    "node-dockerfile": "^0.3.4",
+    "ya-dockerfile-parser": "^1.0.0-alpha.1"
   }
 }

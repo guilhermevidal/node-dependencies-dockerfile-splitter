@@ -30,6 +30,33 @@ describe('DockerfileSplitter', () => {
         });
     })
 
+    describe('split', () => {
+        it('should return the contents of the split dockerfile', () => {
+            return createSplitter(getFake('Dockerfile')).split()
+                .should.eventually.be.deep.equal({
+                    dependencies: `FROM    centos:centos6
+ 
+# Enable Extra Packages for Enterprise Linux (EPEL) for CentOS
+RUN     yum install -y epel-release
+# Install Node.js and npm
+RUN     yum install -y nodejs npm
+ 
+# Install app dependencies
+COPY ["package.json","/src/package.json"] 
+RUN cd /src; npm install
+`,
+                    application: `FROM dummy-deps
+ 
+# Bundle app source
+COPY [".","/src"] 
+ 
+EXPOSE 8080
+CMD ["node","/src/index.js"]
+`
+                });
+        });
+    });
+
     function getFake(fakeName: string) {
         return path.join('fakes', fakeName);
     }
