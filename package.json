@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "node-dockerfile": "^0.3.4",
+    "q": "^1.4.1",
     "ya-dockerfile-parser": "^1.0.0-alpha.1"
   }
 }

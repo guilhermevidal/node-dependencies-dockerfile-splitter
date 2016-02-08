@@ -23,6 +23,18 @@ describe('DockerfileSplitter', () => {
         });
     });
 
+    describe('getVersion', () => {
+        it('should throw if package.json file could not be found', () => {
+            return createSplitter(getFake('DockerfileWithWrongPathToPackageJsonFile')).getVersion()
+                .should.eventually.be.rejectedWith(PackageJsonFileCouldNotBeFoundError);
+        });
+
+        it('should return application version from package.json file', () => {
+            return createSplitter(getFake('Dockerfile')).getVersion()
+                .should.eventually.be.eq('1.0.0-alhpa');
+        });
+    });
+
     describe('getDependenciesImageName', () => {
         it('should return the name of the image to be used as the dependencies for the application', () => {
             return createSplitter(getFake('Dockerfile')).getDependenciesImageName()
@@ -34,6 +46,8 @@ describe('DockerfileSplitter', () => {
         it('should return the contents of the split dockerfile', () => {
             return createSplitter(getFake('Dockerfile')).split()
                 .should.eventually.be.deep.equal({
+                    name: "dummy",
+                    version: "1.0.0-alhpa",
                     dependencies: `FROM    centos:centos6
  
 # Enable Extra Packages for Enterprise Linux (EPEL) for CentOS

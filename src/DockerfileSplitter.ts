@@ -1,6 +1,7 @@
 /// <reference path="../typings/main" />
 import * as fs from 'fs';
 import * as path from 'path';
+import * as Q from 'q';
 
 import {Command, DockerfileCommand} from 'ya-dockerfile-parser';
 
@@ -14,13 +15,22 @@ export class DockerfileSplitter {
     constructor(private filename: string) { }
 
     split(): Promise<SplitFile> {
-        return this.reader.then(r => this.getDependenciesImageName().then(name => {
-            return new Splitter(r, name).split();
-        }));
+        return Q.all<any>([
+            this.getApplicationName(),
+            this.getVersion(),
+            this.getDependenciesImageName(),
+            this.reader,
+        ]).spread((name: string, version: string, dependenciesName: string, reader: CommandsReader) => {
+            return new Splitter(name, version, dependenciesName, reader).split();
+        })
     }
 
     getApplicationName(): Promise<string> {
         return this.packageJson.then(pkg => pkg.name);
+    }
+
+    getVersion(): Promise<string> {
+        return this.packageJson.then(pkg => pkg.version);
     }
 
     getDependenciesImageName(): Promise<string> {
@@ -101,11 +111,18 @@ export class PackageJsonFileCouldNotBeFoundError extends Error {
 }
 
 class Splitter {
-    constructor(private reader: CommandsReader, private dependenciesName: string) {
+    constructor(
+        private name: string,
+        private version: string,
+        private dependenciesName: string,
+        private reader: CommandsReader
+    ) {
     }
 
     split(): SplitFile {
         return {
+            name: this.name,
+            version: this.version,
             dependencies: this.getDependenciesContents(),
             application: this.getApplicationContents()
         }
@@ -158,6 +175,8 @@ class Splitter {
 }
 
 export interface SplitFile {
+    name: string,
+    version: string,
     dependencies: string;
     application: string;
 }

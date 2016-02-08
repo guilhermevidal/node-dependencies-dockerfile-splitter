@@ -4,6 +4,7 @@ export declare class DockerfileSplitter {
     constructor(filename: string);
     split(): Promise<SplitFile>;
     getApplicationName(): Promise<string>;
+    getVersion(): Promise<string>;
     getDependenciesImageName(): Promise<string>;
     private packageJson;
     private _packageJson;
@@ -16,6 +17,8 @@ export declare class PackageJsonFileCouldNotBeFoundError extends Error {
     constructor(pathUsed: string);
 }
 export interface SplitFile {
+    name: string;
+    version: string;
     dependencies: string;
     application: string;
 }

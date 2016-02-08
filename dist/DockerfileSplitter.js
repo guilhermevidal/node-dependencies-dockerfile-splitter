@@ -6,6 +6,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 /// <reference path="../typings/main" />
 var fs = require('fs');
 var path = require('path');
+var Q = require('q');
 var ya_dockerfile_parser_1 = require('ya-dockerfile-parser');
 var NodeDockerCommandsReader_1 = require('./NodeDockerCommandsReader');
 var NodeDockerfileWriter_1 = require('./NodeDockerfileWriter');
@@ -14,13 +15,20 @@ var DockerfileSplitter = (function () {
         this.filename = filename;
     }
     DockerfileSplitter.prototype.split = function () {
-        var _this = this;
-        return this.reader.then(function (r) { return _this.getDependenciesImageName().then(function (name) {
-            return new Splitter(r, name).split();
-        }); });
+        return Q.all([
+            this.getApplicationName(),
+            this.getVersion(),
+            this.getDependenciesImageName(),
+            this.reader,
+        ]).spread(function (name, version, dependenciesName, reader) {
+            return new Splitter(name, version, dependenciesName, reader).split();
+        });
     };
     DockerfileSplitter.prototype.getApplicationName = function () {
         return this.packageJson.then(function (pkg) { return pkg.name; });
+    };
+    DockerfileSplitter.prototype.getVersion = function () {
+        return this.packageJson.then(function (pkg) { return pkg.version; });
     };
     DockerfileSplitter.prototype.getDependenciesImageName = function () {
         return this.getApplicationName().then(function (name) { return name.concat('-deps'); });
@@ -108,13 +116,17 @@ var PackageJsonFileCouldNotBeFoundError = (function (_super) {
 })(Error);
 exports.PackageJsonFileCouldNotBeFoundError = PackageJsonFileCouldNotBeFoundError;
 var Splitter = (function () {
-    function Splitter(reader, dependenciesName) {
-        this.reader = reader;
+    function Splitter(name, version, dependenciesName, reader) {
+        this.name = name;
+        this.version = version;
         this.dependenciesName = dependenciesName;
+        this.reader = reader;
         this.numberOfLinesInDependencies = 1;
     }
     Splitter.prototype.split = function () {
         return {
+            name: this.name,
+            version: this.version,
             dependencies: this.getDependenciesContents(),
             application: this.getApplicationContents()
         };
