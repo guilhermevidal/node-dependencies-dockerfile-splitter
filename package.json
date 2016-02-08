@@ -1,6 +1,6 @@
 {
   "name": "node-dependencies-dockerfile-splitter",
-  "version": "1.0.0-alhpa",
+  "version": "1.0.0-alpha.1",
   "description": "Splits a Dockerfile of a node app into two Dockerfiles (App dependencies and App code).",
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
